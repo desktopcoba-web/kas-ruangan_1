@@ -1,0 +1,1751 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedKas V1.0</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<!-- =====================================================
+     LOGIN V8
+     ===================================================== -->
+
+<div
+    id="loginScreen"
+    class="login-screen"
+    style="display:flex;"
+>
+
+    <div class="login-card">
+
+        <div class="login-logo">
+            💰
+        </div>
+
+        <h1>MedKas</h1>
+
+        <p class="login-subtitle">
+            Silakan masuk untuk melanjutkan
+        </p>
+
+        <form id="loginForm">
+
+            <div class="login-field">
+
+                <label for="loginUsername">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="loginUsername"
+                    name="username"
+                    autocomplete="username"
+                    placeholder="Masukkan username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="login-field">
+
+                <label for="loginPassword">
+                    Password
+                </label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="Masukkan password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="toggle-password"
+                        aria-label="Tampilkan password"
+                    >
+                        👁️
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="loginError"
+                class="login-error"
+                hidden
+            >
+                Username atau password salah.
+            </div>
+
+
+            <button
+                type="submit"
+                id="loginButton"
+                class="login-button"
+            >
+                <span id="loginButtonText">
+                    Masuk
+                </span>
+            </button>
+
+        </form>
+
+        <div class="login-footer">
+            MedKas V1.0
+        </div>
+
+    </div>
+
+</div>
+
+<button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">💚</div>
+            <div>
+                <strong>MedKas</strong>
+                <small>V1.0</small>
+            </div>
+        </div>
+
+        <nav class="menu-list">
+
+            <button class="menu active" data-page="dashboard">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="menu" data-page="profil" id="menuProfil">
+                <span>👤</span>
+                <span>Profil Saya</span>
+            </button>
+
+            <button class="menu" data-page="anggota">
+                <span>👥</span>
+                <span>Anggota</span>
+            </button>
+
+            <button class="menu" data-page="pemasukan">
+                <span>💰</span>
+                <span>Pemasukan</span>
+            </button>
+
+            <button class="menu" data-page="pengeluaran">
+                <span>💸</span>
+                <span>Pengeluaran</span>
+            </button>
+
+            <button class="menu" data-page="iuran">
+                <span>🪙</span>
+                <span>Iuran</span>
+            </button>
+
+            <button class="menu" data-page="laporan">
+                <span>📄</span>
+                <span>Laporan</span>
+            </button>
+
+            <button class="menu" data-page="rekap">
+                <span>📊</span>
+                <span>Rekap</span>
+            </button>
+
+            <button class="menu" data-page="grafik">
+                <span>📈</span>
+                <span>Grafik</span>
+            </button>
+
+            <button class="menu" data-page="keamanan">
+                <span>🛡️</span>
+                <span>Data & Backup</span>
+            </button>
+
+	<button class="menu" data-page="pengguna" id="menuPengguna">
+   		 <span>👥</span>
+  	  <span>Kelola Pengguna</span>
+	</button>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+<button
+    class="sidebar-action"
+    type="button"
+    onclick="logoutKasRuangan()"
+>
+    🚪 Keluar
+</button>
+
+            <button class="sidebar-action" id="backupBtn">
+                💾 Backup Data
+            </button>
+
+            <label class="sidebar-action restore-label">
+                📂 Restore Data
+                <input type="file" id="restoreFile" accept=".json" hidden>
+            </label>
+
+            <div class="version">
+                Dibuat oleh Rezky Gunawan • V1.0
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">Ringkasan keuangan ruangan</p>
+            </div>
+
+            <div class="date-box">
+                📅 <span id="currentDate"></span>
+            </div>
+
+        </header>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section class="page active" id="page-dashboard">
+
+            <div class="cards">
+
+                <div class="card card-mint">
+                    <span>Saldo Saat Ini</span>
+                    <strong id="dashboardBalance">Rp0</strong>
+                    <small>Saldo kas</small>
+                </div>
+
+                <div class="card card-blue">
+                    <span>Total Pemasukan</span>
+                    <strong id="dashboardIncome">Rp0</strong>
+                    <small>Seluruh pemasukan</small>
+                </div>
+
+                <div class="card card-pink">
+                    <span>Total Pengeluaran</span>
+                    <strong id="dashboardExpense">Rp0</strong>
+                    <small>Seluruh pengeluaran</small>
+                </div>
+
+                <div class="card card-peach">
+                    <span>Anggota Aktif</span>
+                    <strong id="dashboardMembers">0</strong>
+                    <small>Anggota aktif</small>
+                </div>
+
+                <div class="card card-lavender">
+                    <span>Iuran Bulan Ini</span>
+                    <strong id="dashboardIuran">Rp0</strong>
+                    <small>Total iuran lunas</small>
+                </div>
+
+                <div class="card card-yellow">
+                    <span>Belum Bayar</span>
+                    <strong id="dashboardUnpaid">0</strong>
+                    <small>Anggota belum bayar</small>
+                </div>
+
+            </div>
+
+
+            <div class="mini-cards">
+
+                <div class="mini-card">
+                    <span>💵 Pemasukan Manual</span>
+                    <strong id="dashboardManualIncome">Rp0</strong>
+                </div>
+
+                <div class="mini-card">
+                    <span>🪙 Pemasukan Iuran</span>
+                    <strong id="dashboardIuranIncome">Rp0</strong>
+                </div>
+
+                <div class="mini-card">
+                    <span>🧾 Transaksi</span>
+                    <strong id="dashboardTransactions">0</strong>
+                </div>
+
+                <div class="mini-card">
+                    <span>📅 Bulan Aktif</span>
+                    <strong id="dashboardCurrentMonth">-</strong>
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Aktivitas Terakhir</h2>
+                            <p>Transaksi terbaru</p>
+                        </div>
+                    </div>
+
+                    <div id="dashboardActivity"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Ringkasan Bulan Ini</h2>
+                            <p>Pergerakan kas</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-list">
+
+                        <div>
+                            <span>Pemasukan</span>
+                            <strong id="dashboardMonthIncome">Rp0</strong>
+                        </div>
+
+                        <div>
+                            <span>Pengeluaran</span>
+                            <strong id="dashboardMonthExpense">Rp0</strong>
+                        </div>
+
+                        <div>
+                            <span>Saldo Bulan</span>
+                            <strong id="dashboardMonthBalance">Rp0</strong>
+                        </div>
+
+                        <div>
+                            <span>Anggota Belum Bayar</span>
+                            <strong id="dashboardMonthUnpaid">0</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= ANGGOTA ================= -->
+
+        <section class="page" id="page-anggota">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Data Anggota</h2>
+                    <p>Kelola anggota ruangan</p>
+                </div>
+
+                <button class="btn primary" id="addMemberBtn">
+                    + Tambah Anggota
+                </button>
+
+            </div>
+
+            <div class="filter-bar">
+
+                <input
+                    type="text"
+                    id="memberSearch"
+                    placeholder="🔎 Cari nomor atau nama..."
+                >
+
+                <select id="memberStatusFilter">
+                    <option value="">Semua Status</option>
+                    <option value="Aktif">Aktif</option>
+                    <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+                    <table id="memberTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nomor</th>
+                                <th>Nama</th>
+                                <th>Jabatan</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PEMASUKAN ================= -->
+
+        <section class="page" id="page-pemasukan">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Pemasukan</h2>
+                    <p>Catatan seluruh pemasukan kas</p>
+                </div>
+
+                <button class="btn primary"
+                        id="addIncomeBtn"
+                        onclick="openTransactionModal('Pemasukan')">
+                    + Tambah Pemasukan
+                </button>
+
+            </div>
+
+            <div class="cards compact">
+
+                <div class="card card-blue">
+                    <span>Total Pemasukan</span>
+                    <strong id="incomeTotal">Rp0</strong>
+                </div>
+
+                <div class="card card-mint">
+                    <span>Pemasukan Manual</span>
+                    <strong id="manualIncomeTotal">Rp0</strong>
+                </div>
+
+                <div class="card card-lavender">
+                    <span>Pemasukan Iuran</span>
+                    <strong id="iuranIncomeTotal">Rp0</strong>
+                </div>
+
+            </div>
+
+            <div class="filter-bar transaction-filters">
+
+                <input
+                    type="text"
+                    id="incomeSearch"
+                    placeholder="🔎 Cari pemasukan..."
+                >
+
+                <select id="incomeFilter">
+                    <option value="">Semua</option>
+                    <option value="manual">Manual</option>
+                    <option value="iuran">Iuran</option>
+                </select>
+
+                <input type="date" id="incomeStartDate">
+                <input type="date" id="incomeEndDate">
+
+                <select id="incomeCategoryFilter">
+                    <option value="">Semua Kategori</option>
+                </select>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+                    <table id="incomeTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>Kategori</th>
+                                <th>Sumber</th>
+                                <th>Jumlah</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PENGELUARAN ================= -->
+
+        <section class="page" id="page-pengeluaran">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Pengeluaran</h2>
+                    <p>Catatan pengeluaran kas</p>
+                </div>
+
+                <button class="btn primary"
+                        onclick="openTransactionModal('Pengeluaran')">
+                    + Tambah Pengeluaran
+                </button>
+
+            </div>
+
+            <div class="cards compact">
+
+                <div class="card card-pink">
+                    <span>Total Pengeluaran</span>
+                    <strong id="expenseTotal">Rp0</strong>
+                </div>
+
+            </div>
+
+            <div class="filter-bar transaction-filters">
+
+                <input
+                    type="text"
+                    id="expenseSearch"
+                    placeholder="🔎 Cari pengeluaran..."
+                >
+
+                <input type="date" id="expenseStartDate">
+                <input type="date" id="expenseEndDate">
+
+                <select id="expenseCategoryFilter">
+                    <option value="">Semua Kategori</option>
+                </select>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+                    <table id="expenseTable">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= IURAN ================= -->
+
+        <section class="page" id="page-iuran">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Iuran Anggota</h2>
+                    <p>Kelola pembayaran iuran bulanan</p>
+                </div>
+
+            </div>
+
+            <div class="iuran-setting">
+
+                <label>
+                    Nominal Iuran
+                    <div class="inline-input">
+                        <input type="number" id="iuranAmount" min="0">
+                        <button class="btn primary" id="saveIuranAmount">
+                            Simpan
+                        </button>
+                    </div>
+                </label>
+
+                <label>
+                    Bulan
+                    <select id="iuranMonth"></select>
+                </label>
+
+                <label>
+                    Tahun
+                    <select id="iuranYear"></select>
+                </label>
+
+            </div>
+
+            <div class="filter-bar">
+
+                <input
+                    type="text"
+                    id="iuranSearch"
+                    placeholder="🔎 Cari anggota..."
+                >
+
+                <select id="iuranStatusFilter">
+                    <option value="">Semua Status</option>
+                    <option value="LUNAS">LUNAS</option>
+                    <option value="BELUM">BELUM</option>
+                </select>
+
+            </div>
+
+            <div class="cards compact">
+
+                <div class="card card-mint">
+                    <span>Sudah Bayar</span>
+                    <strong id="iuranPaidTotal">Rp0</strong>
+                </div>
+
+                <div class="card card-peach">
+                    <span>Outstanding</span>
+                    <strong id="iuranOutstanding">Rp0</strong>
+                </div>
+
+                <div class="card card-pink">
+                    <span>Belum Bayar</span>
+                    <strong id="iuranUnpaidCount">0</strong>
+                </div>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+                    <table id="iuranTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nomor</th>
+                                <th>Nama</th>
+                                <th>Status</th>
+                                <th>Jumlah</th>
+                                <th>Tanggal Bayar</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Daftar Tunggakan</h2>
+                        <p>Semua iuran yang belum dibayar dari berbagai bulan</p>
+                    </div>
+                    <div class="card-inline-total">
+                        <span>Total tunggakan tercatat</span>
+                        <strong id="iuranAllArrearsTotal">Rp0</strong>
+                    </div>
+                </div>
+
+                <h3 style="margin: 18px 0 10px;">Rekap Tunggakan per Anggota</h3>
+                <p>Ringkasan jumlah bulan dan total nominal yang belum dibayar untuk setiap anggota.</p>
+                <div class="table-wrap" style="margin-bottom: 22px;">
+                    <table id="iuranArrearsSummaryTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nomor</th>
+                                <th>Nama</th>
+                                <th>Jumlah Bulan</th>
+                                <th>Total Tunggakan</th>
+                                <th>Pengingat</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="table-wrap">
+                    <table id="iuranArrearsTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nomor</th>
+                                <th>Nama</th>
+                                <th>Periode</th>
+                                <th>Jumlah</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Riwayat Iuran</h2>
+                        <p>Riwayat pembayaran anggota</p>
+                    </div>
+                </div>
+
+                <div class="filters" style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;align-items:end">
+                    <label style="min-width:220px;flex:1">Anggota
+                        <select id="iuranHistoryMember"><option value="">Semua anggota</option></select>
+                    </label>
+                    <label style="min-width:150px">Tahun
+                        <select id="iuranHistoryYear"><option value="">Semua tahun</option></select>
+                    </label>
+                    <label style="min-width:160px">Status
+                        <select id="iuranHistoryStatus">
+                            <option value="">Semua status</option>
+                            <option value="LUNAS">LUNAS</option>
+                            <option value="BELUM LUNAS">BELUM LUNAS</option>
+                        </select>
+                    </label>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+                    <div class="stat-card" style="flex:1;min-width:160px;padding:12px"><span>Total Lunas</span><strong id="iuranHistoryPaidTotal">Rp0</strong></div>
+                    <div class="stat-card" style="flex:1;min-width:160px;padding:12px"><span>Total Belum Lunas</span><strong id="iuranHistoryUnpaidTotal">Rp0</strong></div>
+                    <div class="stat-card" style="flex:1;min-width:160px;padding:12px"><span>Jumlah Periode</span><strong id="iuranHistoryCount">0</strong></div>
+                </div>
+
+                <div class="table-wrap">
+
+                    <table id="iuranHistoryTable">
+
+                        <thead>
+                            <tr>
+                                <th>Tanggal Bayar</th>
+                                <th>Periode</th>
+                                <th>Anggota</th>
+                                <th>Jumlah</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= LAPORAN ================= -->
+
+        <section class="page" id="page-laporan">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Laporan</h2>
+                    <p>Laporan berdasarkan periode tanggal</p>
+                </div>
+
+                <div class="action-group">
+                    <button class="btn secondary" onclick="exportReportCSV()">
+                        📥 CSV
+                    </button>
+
+                    <button class="btn primary" onclick="printReport()">
+                        🖨️ Cetak
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="report-filters">
+
+                <label>
+                    Pilih Bulan (rekap cepat)
+                    <input type="month" id="reportMonth">
+                </label>
+
+                <button class="btn secondary" id="applyReportMonth" type="button">📅 Laporan Bulan Ini</button>
+
+                <label>
+                    Dari
+                    <input type="date" id="reportStart">
+                </label>
+
+                <label>
+                    Sampai
+                    <input type="date" id="reportEnd">
+                </label>
+
+                <button class="btn primary" id="generateReport">
+                    Tampilkan
+                </button>
+
+            </div>
+
+            <div class="cards compact">
+
+                <div class="card card-blue">
+                    <span>Pemasukan</span>
+                    <strong id="reportIncome">Rp0</strong>
+                </div>
+
+                <div class="card card-pink">
+                    <span>Pengeluaran</span>
+                    <strong id="reportExpense">Rp0</strong>
+                </div>
+
+                <div class="card card-mint">
+                    <span>Saldo</span>
+                    <strong id="reportBalance">Rp0</strong>
+                </div>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+                    <table id="reportTable">
+
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jenis</th>
+                                <th>Keterangan</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                            </tr>
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= REKAP ================= -->
+
+        <section class="page" id="page-rekap">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Rekap Bulanan</h2>
+                    <p>Ringkasan keuangan per bulan</p>
+                </div>
+
+                <button class="btn secondary" onclick="exportRecapCSV()">
+                    📥 Export CSV
+                </button>
+
+            </div>
+
+            <div class="report-filters">
+
+                <label>
+                    Tahun
+                    <select id="recapYear"></select>
+                </label>
+
+                <button class="btn primary" id="refreshRecap">
+                    🔄 Refresh
+                </button>
+
+            </div>
+
+            <div class="panel table-panel">
+
+                <div class="table-wrap">
+
+                    <table id="recapTable">
+
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>Pemasukan Manual</th>
+                                <th>Iuran</th>
+                                <th>Total Masuk</th>
+                                <th>Pengeluaran</th>
+                                <th>Saldo</th>
+                                <th>Transaksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody></tbody>
+
+                        <tfoot>
+                            <tr>
+                                <th>Total</th>
+                                <th id="recapManualTotal">Rp0</th>
+                                <th id="recapIuranTotal">Rp0</th>
+                                <th id="recapIncomeTotal">Rp0</th>
+                                <th id="recapExpenseTotal">Rp0</th>
+                                <th id="recapBalanceTotal">Rp0</th>
+                                <th id="recapTransactionTotal">0</th>
+                            </tr>
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= GRAFIK ================= -->
+
+        <section class="page" id="page-grafik">
+
+            <div class="page-actions">
+
+                <div>
+                    <h2>Grafik Keuangan</h2>
+                    <p>Perkembangan kas sepanjang tahun</p>
+                </div>
+
+                <label class="year-control">
+                    Tahun
+                    <select id="chartYear"></select>
+                </label>
+
+            </div>
+
+            <div class="chart-grid">
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Pemasukan vs Pengeluaran</h2>
+                            <p>Per bulan</p>
+                        </div>
+                    </div>
+
+                    <canvas id="incomeExpenseChart"></canvas>
+
+                </div>
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Iuran</h2>
+                            <p>Total iuran per bulan</p>
+                        </div>
+                    </div>
+
+                    <canvas id="iuranChart"></canvas>
+
+                </div>
+
+                <div class="panel chart-panel chart-wide">
+
+                    <div class="panel-header">
+                        <div>
+                            <h2>Perkembangan Saldo</h2>
+                            <p>Saldo kumulatif</p>
+                        </div>
+                    </div>
+
+                    <canvas id="balanceChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= DATA & BACKUP ================= -->
+
+        <section class="page" id="page-keamanan">
+
+<div class="panel safety-card">
+
+    <div class="safety-icon">🔐</div>
+
+    <h2>Pengaturan Login</h2>
+
+    <p>
+        Ganti username dan password untuk masuk ke aplikasi.
+    </p>
+
+    <form id="changeLoginForm">
+
+        <label>
+            Username Baru
+            <input
+                type="text"
+                id="newLoginUsername"
+                required
+                autocomplete="username"
+            >
+        </label>
+
+        <label>
+            Password Lama
+            <input
+                type="password"
+                id="oldLoginPassword"
+                required
+            >
+        </label>
+
+        <label>
+            Password Baru
+            <input
+                type="password"
+                id="newLoginPassword"
+                required
+            >
+        </label>
+
+        <label>
+            Ulangi Password Baru
+            <input
+                type="password"
+                id="confirmLoginPassword"
+                required
+            >
+        </label>
+
+        <button
+            type="submit"
+            class="btn primary"
+        >
+            🔐 Simpan Perubahan Login
+        </button>
+
+    </form>
+
+</div>
+            <div class="page-actions">
+
+                <div>
+                    <h2>Data & Backup</h2>
+                    <p>Kelola keamanan dan cadangan data</p>
+                </div>
+
+            </div>
+
+            <div class="safety-grid">
+
+                <div class="panel safety-card">
+
+                    <div class="safety-icon">💾</div>
+
+                    <h2>Backup Data</h2>
+
+                    <p>
+                        Simpan seluruh data MedKas ke file JSON.
+                        Backup V5 tetap dapat digunakan untuk restore.
+                    </p>
+
+                    <button class="btn primary" onclick="backupData()">
+                        Backup Sekarang
+                    </button>
+
+                    <small id="lastBackupInfo">
+                        Belum ada informasi backup.
+                    </small>
+
+                </div>
+
+
+                <div class="panel safety-card">
+
+                    <div class="safety-icon">📂</div>
+
+                    <h2>Restore Data</h2>
+
+                    <p>
+                        Kembalikan data dari file backup JSON.
+                        Data lama akan diganti setelah konfirmasi.
+                    </p>
+
+                    <label class="btn secondary file-button">
+                        Pilih File Backup
+                        <input type="file"
+                               id="restoreFilePage"
+                               accept=".json"
+                               hidden>
+                    </label>
+
+                </div>
+
+
+                <div class="panel safety-card danger-card">
+
+                    <div class="safety-icon">⚠️</div>
+
+                    <h2>Reset Data</h2>
+
+                    <p>
+                        Gunakan dengan hati-hati. Sebelum reset,
+                        sistem dapat membuat backup otomatis.
+                    </p>
+
+                    <div class="reset-actions">
+
+                        <button class="btn warning"
+                                onclick="openResetModal('transactions')">
+                            Reset Transaksi
+                        </button>
+
+                        <button class="btn warning"
+                                onclick="openResetModal('iuran')">
+                            Reset Iuran
+                        </button>
+
+                        <button class="btn danger"
+                                onclick="openResetModal('allExceptMembers')">
+                            Reset Semua kecuali Anggota
+                        </button>
+
+                        <button class="btn danger"
+                                onclick="openResetModal('all')">
+                            Reset Semua Data
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel safety-card">
+
+                    <div class="safety-icon">↩️</div>
+
+                    <h2>Undo Reset</h2>
+
+                    <p>
+                        Jika baru melakukan reset, data sebelumnya
+                        dapat dikembalikan menggunakan snapshot terakhir.
+                    </p>
+
+                    <button class="btn secondary"
+                            id="undoResetBtn"
+                            onclick="undoLastReset()">
+                        ↩️ Kembalikan Reset Terakhir
+                    </button>
+
+                    <small id="resetBackupInfo">
+                        Tidak ada snapshot reset.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+<!-- ================= KELOLA PENGGUNA V9 ================= -->
+
+<section class="page" id="page-pengguna">
+
+    <div class="panel user-management-panel">
+
+        <div class="user-management-header">
+
+            <div>
+
+                <div class="user-management-icon">
+                    👥
+                </div>
+
+                <h2>Kelola Pengguna</h2>
+
+                <p>
+                    Kelola akun, role, password, dan status pengguna.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="btn primary"
+                id="btnTambahPengguna"
+            >
+                ➕ Tambah Pengguna
+            </button>
+
+        </div>
+
+
+        <!-- INFORMASI ROLE -->
+
+        <div class="role-info-grid">
+
+            <div class="role-info-card admin">
+
+                <div class="role-info-icon">
+                    👑
+                </div>
+
+                <div>
+                    <strong>Admin</strong>
+                    <span>Akses penuh sistem</span>
+                </div>
+
+            </div>
+
+
+            <div class="role-info-card bendahara">
+
+                <div class="role-info-icon">
+                    💰
+                </div>
+
+                <div>
+                    <strong>Bendahara</strong>
+                    <span>Operasional keuangan</span>
+                </div>
+
+            </div>
+
+
+            <div class="role-info-card user">
+
+                <div class="role-info-icon">
+                    👤
+                </div>
+
+                <div>
+                    <strong>User</strong>
+                    <span>Akses terbatas</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABEL PENGGUNA -->
+
+        <div class="table-wrap">
+
+            <table
+                id="userManagementTable"
+                class="data-table user-table"
+            >
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+
+                        <th>Username</th>
+
+                        <th>Nama</th>
+
+                        <th>Role</th>
+
+                        <th>Status</th>
+
+                        <th>Terakhir Login</th>
+
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="userManagementTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+    
+
+<!-- ================= PROFIL SAYA ================= -->
+
+<section class="page" id="page-profil">
+
+    <div class="profile-page">
+
+        <div class="profile-hero panel">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-hero-info">
+                <h2 id="profileUserName">Pengguna</h2>
+                <p id="profileUsername">@username</p>
+                <span class="profile-role-badge" id="profileRole">User</span>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <div class="panel profile-info-card">
+                <div class="profile-section-title">🪪 <span>Data Anggota</span></div>
+                <div class="profile-details-grid">
+                    <div class="profile-detail">
+                        <small>Nomor Anggota</small>
+                        <strong id="profileMemberNumber">-</strong>
+                    </div>
+                    <div class="profile-detail">
+                        <small>Nama Anggota</small>
+                        <strong id="profileMemberName">-</strong>
+                    </div>
+                    <div class="profile-detail">
+                        <small>Jabatan</small>
+                        <strong id="profilePosition">-</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel profile-info-card">
+                <div class="profile-section-title">💰 <span>Status Iuran</span></div>
+                <div class="profile-stat-grid">
+                    <div class="profile-stat paid">
+                        <strong id="profilePaidMonths">0</strong>
+                        <span>Bulan lunas</span>
+                    </div>
+                    <div class="profile-stat unpaid">
+                        <strong id="profileUnpaidMonths">0</strong>
+                        <span>Bulan menunggak</span>
+                    </div>
+                    <div class="profile-stat total">
+                        <strong id="profileOutstanding">Rp0</strong>
+                        <span>Total tunggakan</span>
+                    </div>
+                </div>
+                <div class="profile-status" id="profileIuranStatus">-</div>
+            </div>
+        </div>
+
+        <div class="panel profile-arrears-card">
+            <div class="profile-section-title">📋 <span>Rincian Bulan yang Menunggak</span></div>
+            <div class="table-wrapper">
+                <table class="data-table profile-table">
+                    <thead>
+                        <tr>
+                            <th>Bulan</th>
+                            <th>Tahun</th>
+                            <th>Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profileUnpaidTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<!-- ================= MEMBER MODAL ================= -->
+
+<div class="modal" id="memberModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="memberModalTitle">Tambah Anggota</h2>
+            </div>
+
+            <button class="modal-close"
+                    onclick="closeMemberModal()">
+                ×
+            </button>
+
+        </div>
+
+        <form id="memberForm">
+
+            <input type="hidden" id="memberId">
+
+            <label>
+                Nomor Anggota
+                <input type="text" id="memberNumber" required>
+            </label>
+
+            <label>
+                Nama
+                <input type="text" id="memberName" required>
+            </label>
+
+            <label>
+                Jabatan
+                <input type="text" id="memberPosition">
+            </label>
+
+            <label>
+                Status
+                <select id="memberStatus">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+            </label>
+
+            <label>
+                Keterangan
+                <textarea id="memberNote"></textarea>
+            </label>
+
+            <div class="modal-actions">
+
+                <button type="button"
+                        class="btn secondary"
+                        onclick="closeMemberModal()">
+                    Batal
+                </button>
+
+                <button type="submit"
+                        class="btn primary">
+                    Simpan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================= TRANSACTION MODAL ================= -->
+
+<div class="modal" id="transactionModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="transactionModalTitle">Tambah Transaksi</h2>
+
+            <button class="modal-close"
+                    onclick="closeTransactionModal()">
+                ×
+            </button>
+
+        </div>
+
+        <form id="transactionForm">
+
+            <input type="hidden" id="transactionId">
+            <input type="hidden" id="transactionType">
+
+            <label>
+                Tanggal
+                <input type="date" id="transactionDate" required>
+            </label>
+
+            <label>
+                Keterangan
+                <input type="text"
+                       id="transactionDescription"
+                       required>
+            </label>
+
+            <label>
+                Kategori
+                <input type="text"
+                       id="transactionCategory"
+                       required>
+            </label>
+
+            <label>
+                Jumlah
+                <input type="number"
+                       id="transactionAmount"
+                       min="1"
+                       required>
+            </label>
+
+            <div class="modal-actions">
+
+                <button type="button"
+                        class="btn secondary"
+                        onclick="closeTransactionModal()">
+                    Batal
+                </button>
+
+                <button type="submit"
+                        class="btn primary">
+                    Simpan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RESET MODAL ================= -->
+
+<div class="modal" id="resetModal">
+
+    <div class="modal-box reset-box">
+
+        <div class="modal-header">
+
+            <h2>⚠️ Konfirmasi Reset</h2>
+
+            <button class="modal-close"
+                    onclick="closeResetModal()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="warning-message">
+
+            <strong id="resetTitle">
+                Reset Data
+            </strong>
+
+            <p id="resetDescription">
+                Tindakan ini akan menghapus data yang dipilih.
+            </p>
+
+        </div>
+
+        <label class="checkbox-line">
+
+            <input type="checkbox"
+                   id="backupBeforeReset"
+                   checked>
+
+            <span>
+                Buat backup otomatis sebelum reset
+            </span>
+
+        </label>
+
+        <div class="modal-actions">
+
+            <button class="btn secondary"
+                    onclick="closeResetModal()">
+                Batal
+            </button>
+
+            <button class="btn danger"
+                    id="confirmResetBtn">
+                Ya, Reset
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= USER MANAGEMENT MODAL V9 ================= -->
+
+<div
+    class="modal"
+    id="userManagementModal"
+    aria-hidden="true"
+>
+
+    <div class="modal-box user-modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="userModalTitle">
+                Tambah Pengguna
+            </h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                id="btnCloseUserModal"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="userManagementForm">
+
+            <input
+                type="hidden"
+                id="editingUserId"
+            >
+
+
+            <label>
+
+                Username
+
+                <input
+                    type="text"
+                    id="userUsername"
+                    required
+                    autocomplete="off"
+                >
+
+            </label>
+
+
+            <label>
+
+                Nama Anggota
+
+                <select
+                    id="userFullName"
+                    required
+                >
+                    <option value="">Pilih nama anggota...</option>
+                </select>
+
+            </label>
+
+
+            <label>
+
+                Password
+
+                <input
+                    type="password"
+                    id="userPassword"
+                    autocomplete="new-password"
+                    placeholder="Minimal 4 karakter"
+                >
+
+            </label>
+
+
+            <label>
+
+                Role
+
+                <select
+                    id="userRole"
+                    required
+                >
+
+                    <option value="admin">
+                        👑 Admin
+                    </option>
+
+                    <option value="bendahara">
+                        💰 Bendahara
+                    </option>
+
+                    <option value="user">
+                        👤 User
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+
+                Status
+
+                <select id="userStatus">
+
+                    <option value="active">
+                        🟢 Aktif
+                    </option>
+
+                    <option value="inactive">
+                        🔴 Nonaktif
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <div class="user-form-note">
+
+                Saat mengedit pengguna, password boleh
+                dikosongkan jika tidak ingin mengubah password.
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn secondary"
+                    id="btnCancelUserModal"
+                >
+                    Batal
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn primary"
+                >
+                    💾 Simpan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- TOAST -->
+
+<div id="toast" class="toast"></div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
